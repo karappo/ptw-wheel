@@ -11,24 +11,97 @@
 //   NEO_KHZ400  400 KHz bitstream (e.g. FLORA pixels)
 //   NEO_KHZ800  800 KHz bitstream (e.g. High Density LED strip)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, 6, NEO_GRB + NEO_KHZ800);
- 
+
+char input[30];   // 文字列格納用
+int i = 0;  // 文字数のカウンタ
+boolean serialAvailable = true;
+
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+  Serial.begin(9600);
+  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME2); // White
+  colorWipe(strip.Color(0, 0, 0), DELAY_TIME2); // White
 }
  
 void loop() {
   // Some example procedures showing how to display to the pixels:
 //    colorWipe(strip.Color(0, 0, 0), DELAY_TIME); // Black
-  colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
-  colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); // Green
-  colorWipe(strip.Color(MAX_VAL, MAX_VAL, 0), DELAY_TIME); // Yellow
-  colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); // Blue
-  colorWipe(strip.Color(MAX_VAL, 0, MAX_VAL), DELAY_TIME); // Purple
-  colorWipe(strip.Color(0, MAX_VAL, MAX_VAL), DELAY_TIME); // Cyan
-  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME); // White
-  rainbow(DELAY_TIME2);
-  rainbowCycle(DELAY_TIME2);
+//  colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
+//  colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); // Green
+//  colorWipe(strip.Color(MAX_VAL, MAX_VAL, 0), DELAY_TIME); // Yellow
+//  colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); // Blue
+//  colorWipe(strip.Color(MAX_VAL, 0, MAX_VAL), DELAY_TIME); // Purple
+//  colorWipe(strip.Color(0, MAX_VAL, MAX_VAL), DELAY_TIME); // Cyan
+//  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME); // White
+//  rainbow(DELAY_TIME2);
+//  rainbowCycle(DELAY_TIME2);
+
+//  int c;
+//  if (Serial.available()) {
+//    c = int(Serial.read());
+//    Serial.println(c);
+////    if(c==1){      colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); }
+////    else if(c==2){ colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); }
+////    else if(c==3){ colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); }
+////    else {           colorWipe(strip.Color(0, 0, 0), DELAY_TIME);     }
+//    switch (c) {
+//      case 1:
+//        colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
+//        break;
+//      case 2:
+//        colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); // Green
+//        break;
+//      case 3:
+//        colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); // Blue
+//        break;
+//      default: 
+//        colorWipe(strip.Color(0, 0, 0), DELAY_TIME); // Black
+//    }
+//  }
+
+  if (Serial.available()) {
+    input[i] = Serial.read();
+    Serial.println(input[i]);
+    // 255.255.255
+    if (11 <= i) {
+      
+      String input_str = input;
+      int r = input_str.substring(0,3).toInt();
+      int g = input_str.substring(4,7).toInt();
+      int b = input_str.substring(8,11).toInt();
+
+      colorWipe(strip.Color(r, g, b), DELAY_TIME2);
+      
+      // 末尾に終端文字の挿入
+//      input[i] = '\0';
+      // 受信文字列を送信
+//      Serial.println(input);
+//      Serial.println(r);
+//      Serial.println(g);
+//      Serial.println(b);
+//      Serial.println("---");
+
+      // カウンタの初期化
+      i = 0;
+    }
+    else { i++; }  
+  }
+}
+
+String getValue(String data, char separator, int index)
+{
+ int found = 0;
+  int strIndex[] = { 0, -1 };
+  int maxIndex = data.length()-1;
+  for(int i=0; i<=maxIndex && found<=index; i++){
+  if(data.charAt(i)==separator || i==maxIndex){
+  found++;
+  strIndex[0] = strIndex[1]+1;
+  strIndex[1] = (i == maxIndex) ? i+1 : i;
+  }
+ }
+  return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
 // Fill the dots one after the other with a color
