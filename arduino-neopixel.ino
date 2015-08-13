@@ -20,36 +20,17 @@ void setup() {
 void loop() {
   // Some example procedures showing how to display to the pixels:
 //    colorWipe(strip.Color(0, 0, 0), DELAY_TIME); // Black
-//  colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
-//  colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); // Green
-//  colorWipe(strip.Color(MAX_VAL, MAX_VAL, 0), DELAY_TIME); // Yellow
-//  colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); // Blue
-//  colorWipe(strip.Color(MAX_VAL, 0, MAX_VAL), DELAY_TIME); // Purple
-//  colorWipe(strip.Color(0, MAX_VAL, MAX_VAL), DELAY_TIME); // Cyan
-//  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME); // White
-//  rainbow(DELAY_TIME2);
-//  rainbowCycle(DELAY_TIME2);
-
-  tensen1(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
-  tensen2(strip.Color(MAX_VAL, MAX_VAL, 0), DELAY_TIME); // Yellow
-  tensen1(strip.Color(0, 0, 0), DELAY_TIME);
-  tensen2(strip.Color(0, 0, 0), DELAY_TIME); // Yellow
+  colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
+  colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); // Green
+  colorWipe(strip.Color(MAX_VAL, MAX_VAL, 0), DELAY_TIME); // Yellow
+  colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); // Blue
+  colorWipe(strip.Color(MAX_VAL, 0, MAX_VAL), DELAY_TIME); // Purple
+  colorWipe(strip.Color(0, MAX_VAL, MAX_VAL), DELAY_TIME); // Cyan
+  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME); // White
+  rainbow(DELAY_TIME2);
+  rainbowCycle(DELAY_TIME2);
 }
 
-void tensen1(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<strip.numPixels(); i=i+2) {
-      strip.setPixelColor(i, c);
-      strip.show();
-      delay(wait);
-  }
-}
-void tensen2(uint32_t c, uint8_t wait) {
-  for(uint16_t i=1; i<strip.numPixels(); i=i+2) {
-      strip.setPixelColor(i, c);
-      strip.show();
-      delay(wait);
-  }
-}
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   for(uint16_t i=0; i<strip.numPixels(); i++) {
