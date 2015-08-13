@@ -12,7 +12,8 @@
 //   NEO_KHZ800  800 KHz bitstream (e.g. High Density LED strip)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, 6, NEO_GRB + NEO_KHZ800);
 
-char input[30];   // 文字列格納用
+char input[11];   // 文字列格納用
+String input_str;   // 文字列格納用
 int i = 0;  // 文字数のカウンタ
 boolean serialAvailable = true;
 
@@ -37,55 +38,18 @@ void loop() {
 //  rainbow(DELAY_TIME2);
 //  rainbowCycle(DELAY_TIME2);
 
-//  int c;
-//  if (Serial.available()) {
-//    c = int(Serial.read());
-//    Serial.println(c);
-////    if(c==1){      colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); }
-////    else if(c==2){ colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); }
-////    else if(c==3){ colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); }
-////    else {           colorWipe(strip.Color(0, 0, 0), DELAY_TIME);     }
-//    switch (c) {
-//      case 1:
-//        colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
-//        break;
-//      case 2:
-//        colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); // Green
-//        break;
-//      case 3:
-//        colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); // Blue
-//        break;
-//      default: 
-//        colorWipe(strip.Color(0, 0, 0), DELAY_TIME); // Black
-//    }
-//  }
-
-  if (Serial.available()) {
-    input[i] = Serial.read();
-    Serial.println(input[i]);
-    // 255.255.255
-    if (11 <= i) {
-      
-      String input_str = input;
-      int r = input_str.substring(0,3).toInt();
-      int g = input_str.substring(4,7).toInt();
-      int b = input_str.substring(8,11).toInt();
-
-      colorWipe(strip.Color(r, g, b), DELAY_TIME2);
-      
-      // 末尾に終端文字の挿入
-//      input[i] = '\0';
-      // 受信文字列を送信
-//      Serial.println(input);
-//      Serial.println(r);
-//      Serial.println(g);
-//      Serial.println(b);
-//      Serial.println("---");
-
-      // カウンタの初期化
-      i = 0;
-    }
-    else { i++; }  
+  if (0<Serial.available()) {
+    String str = Serial.readStringUntil('\n');
+    int r = str.substring(0,3).toInt();
+    int g = str.substring(4,7).toInt();
+    int b = str.substring(8,11).toInt();
+    Serial.print("R:");
+    Serial.println(r);
+    Serial.print("G:");
+    Serial.println(g);
+    Serial.print("B:");
+    Serial.println(b);
+    color(strip.Color(r, g, b));
   }
 }
 
@@ -102,6 +66,13 @@ String getValue(String data, char separator, int index)
   }
  }
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
+void color(uint32_t c) {
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+  }
+  strip.show();
 }
 
 // Fill the dots one after the other with a color
