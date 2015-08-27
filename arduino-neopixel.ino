@@ -1,7 +1,6 @@
 #include <Adafruit_NeoPixel.h>
-#define MAX_VAL 64  // 0 to 255 for brightness
-#define DELAY_TIME 50 
-#define DELAY_TIME2 20
+#define MAX_VAL 64 // 0 to 255 for brightness 多くのLEDを制御した場合に、色が安定しない問題を解決するために設けた制限
+#define DELAY_TIME 10
  
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
@@ -15,61 +14,19 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, 6, NEO_GRB + NEO_KHZ800);
 char input[11];   // 文字列格納用
 String input_str;   // 文字列格納用
 int i = 0;  // 文字数のカウンタ
-boolean serialAvailable = true;
 
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
   Serial.begin(9600);
-  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME2); // White
-  colorWipe(0, DELAY_TIME2); 
 
-//  colorWipe(strip.Color(100, 250, 100), DELAY_TIME2);
-//  color(strip.Color(200,100,100));
-//  for (int i=0; i < strip.numPixels(); i++) {
-//    if(i < 30) {
-//      strip.setPixelColor(i, limitedColor(200,100,100));
-//    }
-//    else {
-//      strip.setPixelColor(i, limitedColor(200,100,100));
-//    }
-//  }
-//  strip.show();
+  // startup animation
+  rainbow(2);
+  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME); // White
+  colorWipe(0, DELAY_TIME); 
 }
 
 void loop() {
-
-//  for (int i=0; i < strip.numPixels(); i++) {
-//    strip.setPixelColor(i, 0);
-//  }
-//  Serial.println(strip.getPixelColor(1));
-
-  // OKだった
-//  for(int i=0; i<strip.numPixels(); i++) {
-////    if(i < 59) {
-//      strip.setPixelColor(i, strip.Color(250, 100, 100));
-////    }
-////    else {
-////      strip.setPixelColor(i, strip.Color(255, 0, 0));
-////    }
-//    
-//  }
-//  strip.show();
-  
-  
-//  strip.show();
-//  delay(100);
-//  for(int i=0; i<strip.numPixels(); i++) {
-//    strip.setPixelColor(i, strip.Color(250,100,100));
-//  }
-//  strip.show();
-//  color(strip.Color(255,0,0));
-  
-  // しばらくすると赤になる
-//  color(strip.Color(200,100,100));
-//  color(strip.Color(255,100,100));
-//  color(strip.Color(250,100,100));
-
   if (0<Serial.available()) {
     String str = Serial.readStringUntil('\n');
     int r = str.substring(0,3).toInt();
