@@ -22,47 +22,86 @@ void setup() {
   strip.show(); // Initialize all pixels to 'off'
   Serial.begin(9600);
   colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME2); // White
-  colorWipe(strip.Color(0, 0, 0), DELAY_TIME2); // White
+  colorWipe(0, DELAY_TIME2); 
+
+//  colorWipe(strip.Color(100, 250, 100), DELAY_TIME2);
+//  color(strip.Color(200,100,100));
+//  for (int i=0; i < strip.numPixels(); i++) {
+//    if(i < 30) {
+//      strip.setPixelColor(i, limitedColor(200,100,100));
+//    }
+//    else {
+//      strip.setPixelColor(i, limitedColor(200,100,100));
+//    }
+//  }
+//  strip.show();
 }
- 
+
 void loop() {
-  // Some example procedures showing how to display to the pixels:
-//    colorWipe(strip.Color(0, 0, 0), DELAY_TIME); // Black
-//  colorWipe(strip.Color(MAX_VAL, 0, 0), DELAY_TIME); // Red
-//  colorWipe(strip.Color(0, MAX_VAL, 0), DELAY_TIME); // Green
-//  colorWipe(strip.Color(MAX_VAL, MAX_VAL, 0), DELAY_TIME); // Yellow
-//  colorWipe(strip.Color(0, 0, MAX_VAL), DELAY_TIME); // Blue
-//  colorWipe(strip.Color(MAX_VAL, 0, MAX_VAL), DELAY_TIME); // Purple
-//  colorWipe(strip.Color(0, MAX_VAL, MAX_VAL), DELAY_TIME); // Cyan
-//  colorWipe(strip.Color(MAX_VAL, MAX_VAL, MAX_VAL), DELAY_TIME); // White
-//  rainbow(DELAY_TIME2);
-//  rainbowCycle(DELAY_TIME2);
+
+//  for (int i=0; i < strip.numPixels(); i++) {
+//    strip.setPixelColor(i, 0);
+//  }
+//  Serial.println(strip.getPixelColor(1));
+
+  // OKだった
+//  for(int i=0; i<strip.numPixels(); i++) {
+////    if(i < 59) {
+//      strip.setPixelColor(i, strip.Color(250, 100, 100));
+////    }
+////    else {
+////      strip.setPixelColor(i, strip.Color(255, 0, 0));
+////    }
+//    
+//  }
+//  strip.show();
+  
+  
+//  strip.show();
+//  delay(100);
+//  for(int i=0; i<strip.numPixels(); i++) {
+//    strip.setPixelColor(i, strip.Color(250,100,100));
+//  }
+//  strip.show();
+//  color(strip.Color(255,0,0));
+  
+  // しばらくすると赤になる
+//  color(strip.Color(200,100,100));
+//  color(strip.Color(255,100,100));
+//  color(strip.Color(250,100,100));
 
   if (0<Serial.available()) {
     String str = Serial.readStringUntil('\n');
     int r = str.substring(0,3).toInt();
     int g = str.substring(4,7).toInt();
     int b = str.substring(8,11).toInt();
-    Serial.print("R:");
-    Serial.println(r);
-    Serial.print("G:");
-    Serial.println(g);
-    Serial.print("B:");
-    Serial.println(b);
-    color(strip.Color(r, g, b));
+
+    // あまり強く光らせると色が安定しないのでリミットを設ける
+    int _r = constrainValue(r);
+    int _g = constrainValue(g);
+    int _b = constrainValue(b);
+    Serial.println("::: setInstColor :::");
+    Serial.println("input:["+String(r)+","+String(g)+","+String(b)+"] constrains to ["+String(_r)+","+String(_g)+","+String(_b)+"]");
+    
+    color(strip.Color(_r, _g, _b));
   }
 }
 
-String getValue(String data, char separator, int index)
-{
+// limitation of brightness
+// 0-255の値を0-MAX_VALの範囲に
+uint32_t constrainValue(int input) {
+  return float(input) / 255.0 * float(MAX_VAL);
+}
+
+String getValue(String data, char separator, int index) {
  int found = 0;
   int strIndex[] = { 0, -1 };
   int maxIndex = data.length()-1;
   for(int i=0; i<=maxIndex && found<=index; i++){
   if(data.charAt(i)==separator || i==maxIndex){
-  found++;
-  strIndex[0] = strIndex[1]+1;
-  strIndex[1] = (i == maxIndex) ? i+1 : i;
+    found++;
+    strIndex[0] = strIndex[1]+1;
+    strIndex[1] = (i == maxIndex) ? i+1 : i;
   }
  }
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
