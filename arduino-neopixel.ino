@@ -1,4 +1,7 @@
 #include <Adafruit_NeoPixel.h>
+
+// Arduino Nano v2.x, v3.x
+
 #define TOTAL_PIXELS 99
 
 // common settings :::::::::
