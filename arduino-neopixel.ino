@@ -34,19 +34,28 @@ void setup() {
 
 void loop() {
   if (0<Serial.available()) {
+    // 255,255,255 255,255,255
     String str = Serial.readStringUntil('\n');
-    int r = str.substring(0,3).toInt();
-    int g = str.substring(4,7).toInt();
-    int b = str.substring(8,11).toInt();
+    int inst_r = str.substring(0,3).toInt();
+    int inst_g = str.substring(4,7).toInt();
+    int inst_b = str.substring(8,11).toInt();
+
+    int effect_r = str.substring(0,3).toInt();
+    int effect_g = str.substring(4,7).toInt();
+    int effect_b = str.substring(8,11).toInt();
 
     // あまり強く光らせると色が安定しないのでリミットを設ける
-    int _r = constrainValue(r);
-    int _g = constrainValue(g);
-    int _b = constrainValue(b);
-    Serial.println("::: setInstColor :::");
-    Serial.println("input:["+String(r)+","+String(g)+","+String(b)+"] constrains to ["+String(_r)+","+String(_g)+","+String(_b)+"]");
+    int _inst_r = constrainValue(inst_r);
+    int _inst_g = constrainValue(inst_g);
+    int _inst_b = constrainValue(inst_b);
+    int _effect_r = constrainValue(effect_r);
+    int _effect_g = constrainValue(effect_g);
+    int _effect_b = constrainValue(effect_b);
+    Serial.println("::: setColor :::");
+    Serial.println("instrument:["+String(inst_r)+","+String(inst_g)+","+String(inst_b)+"] constrains to ["+String(_inst_r)+","+String(_inst_g)+","+String(_inst_b)+"]");
+    Serial.println("effect:["+String(effect_r)+","+String(effect_g)+","+String(effect_b)+"] constrains to ["+String(_effect_r)+","+String(_effect_g)+","+String(_effect_b)+"]");
     
-    color(strip.Color(_r, _g, _b));
+    updateColor(strip.Color(_inst_r, _inst_g, _inst_b), strip.Color(_effect_r, _effect_g, _effect_b));
   }
 }
 
@@ -70,9 +79,21 @@ String getValue(String data, char separator, int index) {
   return found>index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
-void color(uint32_t c) {
+void updateColor(uint32_t instrumentColor, uint32_t effectColor) {
   for(uint16_t i=0; i<strip.numPixels(); i++) {
-    strip.setPixelColor(i, c);
+    if(i<TOTAL_PIXELS/4){
+      strip.setPixelColor(i, instrumentColor);
+    }
+    else if(i<TOTAL_PIXELS/2){
+      strip.setPixelColor(i, effectColor);
+    }
+    else if(i<TOTAL_PIXELS*3/4){
+      strip.setPixelColor(i, instrumentColor);
+    }
+    else {
+      strip.setPixelColor(i, effectColor);
+    }
+    
   }
   strip.show();
 }
