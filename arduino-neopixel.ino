@@ -58,7 +58,7 @@ void loop() {
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
-    if(command=="0") {
+    if(command=="i") {
       Serial.println(command);
       if(argument.length()==11) {
         // argument likes "255.255.255"
@@ -73,7 +73,7 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(command=="1") {
+    else if(command=="e") {
       if(argument.length()==11) {
         // argument likes "255.255.255"
         int r = constrainValue(argument.substring(0,3).toInt());
