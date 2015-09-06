@@ -55,7 +55,7 @@ void loop() {
         updateLED();
       }
       else {
-        Serial.print("Invalid argument:");
+        Serial.print("Invalid argument: ");
         Serial.println(argument);
       }
     }
@@ -68,7 +68,7 @@ void loop() {
         updateLED();
       }
       else {
-        Serial.print("Invalid argument:");
+        Serial.print("Invalid argument: ");
         Serial.println(argument);
       }
     }
@@ -76,7 +76,7 @@ void loop() {
       brightness = 1.0;
     }
     else {
-      Serial.print("Command not found:");
+      Serial.print("Command not found: ");
       Serial.println(command);
     }
   }
