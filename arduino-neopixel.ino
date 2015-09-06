@@ -7,7 +7,7 @@
 // common settings :::::::::
 
 #define MAX_VAL 64 // 0 to 255 for brightness 多くのLEDを制御した場合に、色が安定しない問題を解決するために設けた制限
-#define DELAY_TIME 10
+#define DELAY_TIME 5
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
 // Parameter 3 = pixel type flags, add together as needed:
@@ -31,6 +31,9 @@ int e_color_b = 0;
 #define BRIGHTNESS_MIN 0.5 // 平常時のBrightness
 float brightness = 1;
 
+int divide = 2; // LEDパターンの分割数
+float slit_position = 0.5; // 0~1 分割された区分の中のどこまでがinstrumentにするか。0だと全部effect color。1だと全部instrument color。
+
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
@@ -45,6 +48,7 @@ void loop() {
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
+    
     if(command=="i") { // set instrument color
       Serial.println(command);
       if(argument.length()==11) {
@@ -74,6 +78,28 @@ void loop() {
     }
     else if(command=="s") { // sound trigger
       brightness = 1.0;
+    }
+    else if(command=="d") { // set divide number
+      
+      if(argument.length()==1) {
+        // argument is int
+        divide = argument.toInt();
+        Serial.print("set divide number: ");
+        Serial.println(divide);
+        updateLED();
+      }
+      else {
+        Serial.print("Invalid argument: ");
+        Serial.println(argument);
+      }
+    }
+    else if(command=="l") { // set slit position
+      // TODO argument check
+      // argument is float
+      slit_position = argument.toFloat();
+      Serial.print("set slit position: ");
+      Serial.println(slit_position);
+      updateLED();
     }
     else {
       Serial.print("Command not found: ");
@@ -109,20 +135,26 @@ String getValue(String data, char separator, int index) {
 }
 
 void updateLED() {
+  Serial.println("updateLED");
   uint32_t instrument_color = multiplicateBrightness(i_color_r, i_color_g, i_color_b);
   uint32_t effect_color = multiplicateBrightness(e_color_r, e_color_g, e_color_b);
-  for(uint16_t i=0; i<strip.numPixels(); i++) {
-    if(i<TOTAL_PIXELS/4){
-      strip.setPixelColor(i, instrument_color);
-    }
-    else if(i<TOTAL_PIXELS/2){
-      strip.setPixelColor(i, effect_color);
-    }
-    else if(i<TOTAL_PIXELS*3/4){
-      strip.setPixelColor(i, instrument_color);
+
+  float unit = (float) TOTAL_PIXELS / (float) divide;
+  int unit_number = 1;
+  int unit_start = 0;
+  for(uint16_t i=0; i<TOTAL_PIXELS;) {
+    if(i<unit*unit_number){
+      if(i<unit_start+unit*slit_position) {
+        strip.setPixelColor(i, instrument_color);
+      }
+      else {
+        strip.setPixelColor(i, effect_color);
+      }
+      i++;
     }
     else {
-      strip.setPixelColor(i, effect_color);
+      unit_number++;
+      unit_start = i;
     }
   }
   strip.show();
