@@ -21,8 +21,15 @@ char input[11];   // 文字列格納用
 String input_str;   // 文字列格納用
 int i = 0;  // 文字数のカウンタ
 
-uint32_t instrument_color = 0;
-uint32_t effect_color = 0;
+int i_color_r = 0;
+int i_color_g = 0;
+int i_color_b = 0;
+int e_color_r = 0;
+int e_color_g = 0;
+int e_color_b = 0;
+
+#define BRIGHTNESS_MIN 0.5 // 平常時のBrightness
+float brightness = 1;
 
 void setup() {
   strip.begin();
@@ -34,38 +41,17 @@ void setup() {
   colorWipe(0, DELAY_TIME);
 }
 
-//void loop() {
-//    if (0<Serial.available()) {
-//      // 255,255,255 255,255,255
-//      String str = Serial.readStringUntil('\n');
-//      int inst_r = str.substring(0,3).toInt();
-//      int inst_g = str.substring(4,7).toInt();
-//      int inst_b = str.substring(8,11).toInt();
-//  
-//      // あまり強く光らせると色が安定しないのでリミットを設ける
-//      int _inst_r = constrainValue(inst_r);
-//      int _inst_g = constrainValue(inst_g);
-//      int _inst_b = constrainValue(inst_b);
-//      Serial.println("::: setColor :::");
-//      Serial.println("instrument:["+String(inst_r)+","+String(inst_g)+","+String(inst_b)+"] constrains to ["+String(_inst_r)+","+String(_inst_g)+","+String(_inst_b)+"]");
-//      
-//      instrument_color = strip.Color(_inst_r, _inst_g, _inst_b);
-//      updateLED();
-//    }
-//}
-
 void loop() {
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
-    if(command=="i") {
+    if(command=="i") { // set instrument color
       Serial.println(command);
       if(argument.length()==11) {
         // argument likes "255.255.255"
-        int r = constrainValue(argument.substring(0,3).toInt());
-        int g = constrainValue(argument.substring(4,7).toInt());
-        int b = constrainValue(argument.substring(8,11).toInt());
-        instrument_color = strip.Color(r, g, b);
+        i_color_r = constrainValue(argument.substring(0,3).toInt());
+        i_color_g = constrainValue(argument.substring(4,7).toInt());
+        i_color_b = constrainValue(argument.substring(8,11).toInt());
         updateLED();
       }
       else {
@@ -73,23 +59,31 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(command=="e") {
+    else if(command=="e") { // set effect color
       if(argument.length()==11) {
         // argument likes "255.255.255"
-        int r = constrainValue(argument.substring(0,3).toInt());
-        int g = constrainValue(argument.substring(4,7).toInt());
-        int b = constrainValue(argument.substring(8,11).toInt());
-        effect_color = strip.Color(r, g, b);
+        e_color_r = constrainValue(argument.substring(0,3).toInt());
+        e_color_g = constrainValue(argument.substring(4,7).toInt());
+        e_color_b = constrainValue(argument.substring(8,11).toInt());
         updateLED();
       }
       else {
         Serial.print("Invalid argument:");
         Serial.println(argument);
       }
+    }
+    else if(command=="s") { // sound trigger
+      brightness = 1.0;
     }
     else {
       Serial.print("Command not found:");
       Serial.println(command);
+    }
+  }
+  else {
+    if(BRIGHTNESS_MIN < brightness) {
+      brightness -= 0.01;
+      updateLED();
     }
   }
 }
@@ -115,6 +109,8 @@ String getValue(String data, char separator, int index) {
 }
 
 void updateLED() {
+  uint32_t instrument_color = multiplicateBrightness(i_color_r, i_color_g, i_color_b);
+  uint32_t effect_color = multiplicateBrightness(e_color_r, e_color_g, e_color_b);
   for(uint16_t i=0; i<strip.numPixels(); i++) {
     if(i<TOTAL_PIXELS/4){
       strip.setPixelColor(i, instrument_color);
@@ -130,6 +126,12 @@ void updateLED() {
     }
   }
   strip.show();
+}
+uint32_t multiplicateBrightness(int _r, int _g, int _b) {
+  int r = (int) _r*brightness;
+  int g = (int) _g*brightness;
+  int b = (int) _b*brightness;
+  return strip.Color(r, g, b);
 }
 
 // Fill the dots one after the other with a color
