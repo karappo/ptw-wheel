@@ -93,11 +93,11 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(command=="l") { // set slit position
+    else if(command=="p") { // set position
       // TODO argument check
       // argument is float
       slit_position = argument.toFloat();
-      Serial.print("set slit position: ");
+      Serial.print("set position: ");
       Serial.println(slit_position);
       updateLED();
     }
