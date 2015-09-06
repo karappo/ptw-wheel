@@ -28,7 +28,7 @@ int e_color_r = 0;
 int e_color_g = 0;
 int e_color_b = 0;
 
-#define BRIGHTNESS_MIN 0.5 // 平常時のBrightness
+float brightness_min = 0.5; // 平常時のBrightness
 float brightness = 1;
 
 int divide = 2; // LEDパターンの分割数
@@ -101,13 +101,21 @@ void loop() {
       Serial.println(slit_position);
       updateLED();
     }
+    else if(command=="b") { // set brightness min value
+      // TODO argument check
+      // argument is float
+      brightness_min = argument.toInt();
+      Serial.print("set brightness min value: ");
+      Serial.println(brightness_min);
+      updateLED();
+    }
     else {
       Serial.print("Command not found: ");
       Serial.println(command);
     }
   }
   else {
-    if(BRIGHTNESS_MIN < brightness) {
+    if(brightness_min < brightness) {
       brightness -= 0.01;
       updateLED();
     }
