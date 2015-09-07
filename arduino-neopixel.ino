@@ -104,7 +104,7 @@ void loop() {
     else if(command=="b") { // set brightness min value
       // TODO argument check
       // argument is float
-      brightness_min = argument.toInt();
+      brightness_min = argument.toFloat();
       Serial.print("set brightness min value: ");
       Serial.println(brightness_min);
       updateLED();
