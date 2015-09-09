@@ -49,7 +49,7 @@ void loop() {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
     
-    if(equal(command,"instrument")) { // set instrument color
+    if(command=="i") { // set instrument color
       Serial.println(command);
       if(argument.length()==11) {
         // argument likes "255.255.255"
@@ -63,7 +63,7 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(equal(command,"effect")) { // set effect color
+    else if(command=="e") { // set effect color
       if(argument.length()==11) {
         // argument likes "255.255.255"
         e_color_r = constrainValue(argument.substring(0,3).toInt());
@@ -76,10 +76,10 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(equal(command,"play")) { // sound play
+    else if(command=="s") { // sound trigger
       brightness = 1.0;
     }
-    else if(equal(command,"divide")) { // set divide number
+    else if(command=="d") { // set divide number
       
       if(argument.length()==1) {
         // argument is int
@@ -93,7 +93,7 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(equal(command,"position")) { // set position
+    else if(command=="p") { // set position
       // TODO argument check
       // argument is float
       slit_position = argument.toFloat();
@@ -101,7 +101,7 @@ void loop() {
       Serial.println(slit_position);
       updateLED();
     }
-    else if(equal(command,"brightness")) { // set brightness min value
+    else if(command=="b") { // set brightness min value
       // TODO argument check
       // argument is float
       brightness_min = argument.toFloat();
@@ -120,10 +120,6 @@ void loop() {
       updateLED();
     }
   }
-}
-
-bool equal(String str1, String str2) {
-  return str1.compareTo(str2)==0;
 }
 
 // limitation of brightness
