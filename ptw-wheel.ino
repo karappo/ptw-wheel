@@ -57,15 +57,14 @@ void loop() {
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
-
-    Serial.print("command:");
-    Serial.println(command);
     
     // set instrument type
     // "t:[0|1];"
     if(command=="t") {
+      Serial.println(command);
       if(argument.toInt()==INSTRUMENT_TYPE_ONESHOT || argument.toInt()==INSTRUMENT_TYPE_LONGSHOT) {
         i_type = argument.toInt();
+        updateLED();
       }
       else {
         Serial.print("Invalid argument: ");
@@ -75,11 +74,12 @@ void loop() {
     // set instrument color
     // "i:[000-255].[000-255].[000-255];"
     else if(command=="i") {
+      Serial.println(command);
       if(argument.length()==11) {
         
-        i_color_r = constrainValue(argument.substring(0,3).toInt());
-        i_color_g = constrainValue(argument.substring(4,7).toInt());
-        i_color_b = constrainValue(argument.substring(8,11).toInt());
+        i_color_r = argument.substring(0,3).toInt();
+        i_color_g = argument.substring(4,7).toInt();
+        i_color_b = argument.substring(8,11).toInt();
         updateLED();
       }
       else {
@@ -90,10 +90,11 @@ void loop() {
     // set effect color
     // "e:[000-255].[000-255].[000-255];"
     else if(command=="e") {
+      Serial.println(command);
       if(argument.length()==11) {
-        e_color_r = constrainValue(argument.substring(0,3).toInt());
-        e_color_g = constrainValue(argument.substring(4,7).toInt());
-        e_color_b = constrainValue(argument.substring(8,11).toInt());
+        e_color_r = argument.substring(0,3).toInt();
+        e_color_g = argument.substring(4,7).toInt();
+        e_color_b = argument.substring(8,11).toInt();
         updateLED();
       }
       else {
@@ -176,35 +177,84 @@ String getValue(String data, char separator, int index) {
 }
 
 void updateLED() {
-  uint32_t instrument_color = multiplicateBrightness(i_color_r, i_color_g, i_color_b);
-  uint32_t effect_color = multiplicateBrightness(e_color_r, e_color_g, e_color_b);
+  uint32_t instrument_color = multiplicateBrightness(constrainValue(i_color_r), constrainValue(i_color_g), constrainValue(i_color_b));
+  uint32_t effect_color = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b));
 
-  float unit = (float) TOTAL_PIXELS / (float) divide;
-  int unit_number = 1;
-  int unit_start = 0;
-  for(uint16_t i=0; i<TOTAL_PIXELS;) {
-    if(i<unit*unit_number){
-      if(i<unit_start+unit*slit_position) {
-        strip.setPixelColor(i, instrument_color);
+  switch (i_type) {
+    case INSTRUMENT_TYPE_ONESHOT:
+      {
+        float unit = (float) TOTAL_PIXELS / (float) divide;
+        int unit_number = 1;
+        int unit_start = 0;
+        bool effect_on = true;
+        for(uint16_t i=0; i<TOTAL_PIXELS;) {
+          if(i<unit*unit_number){
+            if(i<unit_start+unit*slit_position) {
+              // instrument section
+              strip.setPixelColor(i, instrument_color);
+            }
+            else {
+              // effect section
+              // 交互に色付く
+              uint32_t _color = effect_on ? effect_color : 0;
+              strip.setPixelColor(i, _color);
+              effect_on = !effect_on;
+            }
+            i++;
+          }
+          else {
+            unit_number++;
+            unit_start = i;
+          }
+        }
       }
-      else {
-        strip.setPixelColor(i, effect_color);
+      break;
+    case INSTRUMENT_TYPE_LONGSHOT:
+      {
+        divide = 5;
+        slit_position = 0.5;
+        float unit = (float) TOTAL_PIXELS / (float) divide;
+        int unit_number = 1;
+        int unit_start = 0;
+        bool effect_on = true;
+        for(uint16_t i=0; i<TOTAL_PIXELS;) {
+          if(i<unit*unit_number){
+            if(i<unit_start+unit*slit_position) {
+              // instrument section
+              strip.setPixelColor(i, instrument_color);
+            }
+            else {
+              // effect section
+              // 交互に色付く
+              uint32_t _color = effect_on ? effect_color : 0;
+              strip.setPixelColor(i, _color);
+              effect_on = !effect_on;
+            }
+            i++;
+          }
+          else {
+            unit_number++;
+            unit_start = i;
+          }
+        }
       }
-      i++;
-    }
-    else {
-      unit_number++;
-      unit_start = i;
-    }
+      break;
+    default:
+      Serial.println("[error] i_type is invalid");
+      break;
   }
   strip.show();
 }
+
 uint32_t multiplicateBrightness(int _r, int _g, int _b) {
   int r = (int) _r*brightness;
   int g = (int) _g*brightness;
   int b = (int) _b*brightness;
   return strip.Color(r, g, b);
 }
+
+
+// from Adafruit example
 
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
@@ -226,19 +276,6 @@ void rainbow(uint8_t wait) {
     delay(wait);
   }
 }
- 
-// Slightly different, this makes the rainbow equally distributed throughout
-//void rainbowCycle(uint8_t wait) {
-//  uint16_t i, j;
-// 
-//  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-//    for(i=0; i< strip.numPixels(); i++) {
-//      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
-//    }
-//    strip.show();
-//    delay(wait);
-//  }
-//}
  
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
