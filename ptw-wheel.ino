@@ -48,11 +48,12 @@ void loop() {
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
-    
-    if(command=="i") { // set instrument color
+    // set instrument color
+    // "i:[000-255].[000-255].[000-255];"
+    if(command=="i") {
       Serial.println(command);
       if(argument.length()==11) {
-        // argument likes "255.255.255"
+        
         i_color_r = constrainValue(argument.substring(0,3).toInt());
         i_color_g = constrainValue(argument.substring(4,7).toInt());
         i_color_b = constrainValue(argument.substring(8,11).toInt());
@@ -63,9 +64,10 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(command=="e") { // set effect color
+    // set effect color
+    // "e:[000-255].[000-255].[000-255];"
+    else if(command=="e") {
       if(argument.length()==11) {
-        // argument likes "255.255.255"
         e_color_r = constrainValue(argument.substring(0,3).toInt());
         e_color_g = constrainValue(argument.substring(4,7).toInt());
         e_color_b = constrainValue(argument.substring(8,11).toInt());
@@ -76,10 +78,14 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(command=="s") { // sound trigger
+    // sound trigger
+    // "s:;"
+    else if(command=="s") {
       brightness = 1.0;
     }
-    else if(command=="d") { // set divide number
+    // set divide number
+    // "d:[0-9];"
+    else if(command=="d") {
       
       if(argument.length()==1) {
         // argument is int
@@ -93,7 +99,9 @@ void loop() {
         Serial.println(argument);
       }
     }
-    else if(command=="p") { // set position
+    // set position
+    // "p:[0.0-1.0];"
+    else if(command=="p") {
       // TODO argument check
       // argument is float
       slit_position = argument.toFloat();
@@ -101,7 +109,9 @@ void loop() {
       Serial.println(slit_position);
       updateLED();
     }
-    else if(command=="b") { // set brightness min value
+    // set brightness min value
+    // "b:[0.0-1.0];"
+    else if(command=="b") {
       // TODO argument check
       // argument is float
       brightness_min = argument.toFloat();
