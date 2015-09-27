@@ -2,12 +2,12 @@
 
 // Arduino Nano v2.x, v3.x
 
-#define TOTAL_PIXELS 99
+#define TOTAL_PIXELS 72
 
 // common settings :::::::::
 
 #define MAX_VAL 64 // 0 to 255 for brightness 多くのLEDを制御した場合に、色が安定しない問題を解決するために設けた制限
-#define DELAY_TIME 5
+
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
 // Parameter 3 = pixel type flags, add together as needed:
@@ -50,7 +50,7 @@ void setup() {
 
   // startup animation
   rainbow(2);
-  colorWipe(0, DELAY_TIME);
+  colorWipe(0, 2);
 }
 
 void loop() {
