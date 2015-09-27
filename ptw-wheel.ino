@@ -17,9 +17,15 @@
 //   NEO_KHZ800  800 KHz bitstream (e.g. High Density LED strip)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(TOTAL_PIXELS, 6, NEO_GRB + NEO_KHZ800);
 
+// serial communication
 char input[11];   // 文字列格納用
 String input_str;   // 文字列格納用
 int i = 0;  // 文字数のカウンタ
+
+// instrument types
+#define INSTRUMENT_TYPE_ONESHOT 0
+#define INSTRUMENT_TYPE_LONGSHOT 1
+int i_type = INSTRUMENT_TYPE_ONESHOT;
 
 // instrument color
 int i_color_r = 255;
@@ -51,10 +57,24 @@ void loop() {
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
+
+    Serial.print("command:");
+    Serial.println(command);
+    
+    // set instrument type
+    // "t:[0|1];"
+    if(command=="t") {
+      if(argument.toInt()==INSTRUMENT_TYPE_ONESHOT || argument.toInt()==INSTRUMENT_TYPE_LONGSHOT) {
+        i_type = argument.toInt();
+      }
+      else {
+        Serial.print("Invalid argument: ");
+        Serial.println(argument);
+      }
+    }
     // set instrument color
     // "i:[000-255].[000-255].[000-255];"
-    if(command=="i") {
-      Serial.println(command);
+    else if(command=="i") {
       if(argument.length()==11) {
         
         i_color_r = constrainValue(argument.substring(0,3).toInt());
@@ -156,7 +176,6 @@ String getValue(String data, char separator, int index) {
 }
 
 void updateLED() {
-  Serial.println("updateLED");
   uint32_t instrument_color = multiplicateBrightness(i_color_r, i_color_g, i_color_b);
   uint32_t effect_color = multiplicateBrightness(e_color_r, e_color_g, e_color_b);
 
