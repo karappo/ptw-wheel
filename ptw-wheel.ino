@@ -21,12 +21,15 @@ char input[11];   // 文字列格納用
 String input_str;   // 文字列格納用
 int i = 0;  // 文字数のカウンタ
 
+// instrument color
 int i_color_r = 255;
 int i_color_g = 255;
 int i_color_b = 255;
+
+// effect color
 int e_color_r = 0;
 int e_color_g = 0;
-int e_color_b = 0;
+int e_color_b = 255;
 
 float brightness_min = 0.5; // 平常時のBrightness
 float brightness = 1;
