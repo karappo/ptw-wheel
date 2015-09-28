@@ -35,8 +35,9 @@ int i_type = INSTRUMENT_TYPE_ONESHOT;
 int i_color_r = 255;
 int i_color_g = 0;
 int i_color_b = 0;
-float instrument_brightness_min = 0.5; // default brightness
-float instrument_brightness = 1;
+float instrument_brightness_min = 0.5; // use oneshot only
+float instrument_brightness_target = 1.0; // use longshot only
+float instrument_brightness = 1.0;
 
 // effect color
 int e_color_r = 0;
@@ -161,6 +162,16 @@ void loop() {
       // Serial.println(instrument_brightness_min);
       updateLED();
     }
+    // set instrument_brightness_target value
+    // "b:[0.0-1.0];"
+    else if(command=="B") {
+      // TODO argument check
+      // argument is float
+      instrument_brightness_target = argument.toFloat();
+      // Serial.print("set instrument_brightness min value: ");
+      // Serial.println(instrument_brightness_target);
+      updateLED();
+    }
     else {
       Serial.print("Command not found: ");
       Serial.println(command);
@@ -169,12 +180,34 @@ void loop() {
   else {
 
     // instrument brightness
-    if(instrument_brightness_min+0.01 <= instrument_brightness) {
-      instrument_brightness -= 0.01;
-      updateLED();
+
+    if(i_type==INSTRUMENT_TYPE_ONESHOT){
+      if(instrument_brightness_min+0.01 <= instrument_brightness) {
+        instrument_brightness -= 0.01;
+        updateLED();
+      }
+    }
+    else if(i_type==INSTRUMENT_TYPE_LONGSHOT){
+      // fade effect brightness to instrument_brightness_target value
+      float diff = abs(instrument_brightness_target-instrument_brightness);
+      if(0.01<diff){
+        if(instrument_brightness_target < instrument_brightness) {
+          instrument_brightness -= 0.01;
+        }
+        else {
+          instrument_brightness += 0.01;
+        }
+        updateLED();
+      }
+      else if(diff != 0.0){
+        effect_brightness = effect_brightness_target;
+        updateLED();
+      }
     }
 
+
     // effect brightness
+
     // fade effect brightness to effect_brightness_target value
     float diff = abs(effect_brightness_target-effect_brightness);
     if(0.01<diff){
@@ -188,6 +221,7 @@ void loop() {
     }
     else if(diff != 0.0){
       effect_brightness = effect_brightness_target;
+      updateLED();
     }
   }
 }
