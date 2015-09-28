@@ -165,12 +165,15 @@ void loop() {
     // set instrument_brightness_target value
     // "b:[0.0-1.0];"
     else if(command=="B") {
-      // TODO argument check
-      // argument is float
-      instrument_brightness_target = argument.toFloat();
-      // Serial.print("set instrument_brightness min value: ");
-      // Serial.println(instrument_brightness_target);
-      updateLED();
+      if(i_type==INSTRUMENT_TYPE_LONGSHOT){
+        // TODO argument check
+        // argument is float
+        instrument_brightness = argument.toFloat();
+        // instrument_brightness_target = argument.toFloat();
+        // Serial.print("set instrument_brightness min value: ");
+        // Serial.println(instrument_brightness_target);
+        updateLED();
+      }
     }
     else {
       Serial.print("Command not found: ");
@@ -184,23 +187,6 @@ void loop() {
     if(i_type==INSTRUMENT_TYPE_ONESHOT){
       if(instrument_brightness_min+0.01 <= instrument_brightness) {
         instrument_brightness -= 0.01;
-        updateLED();
-      }
-    }
-    else if(i_type==INSTRUMENT_TYPE_LONGSHOT){
-      // fade effect brightness to instrument_brightness_target value
-      float diff = abs(instrument_brightness_target-instrument_brightness);
-      if(0.01<diff){
-        if(instrument_brightness_target < instrument_brightness) {
-          instrument_brightness -= 0.01;
-        }
-        else {
-          instrument_brightness += 0.01;
-        }
-        updateLED();
-      }
-      else if(diff != 0.0){
-        effect_brightness = effect_brightness_target;
         updateLED();
       }
     }
