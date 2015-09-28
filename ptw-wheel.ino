@@ -2,7 +2,10 @@
 
 // Arduino Nano v2.x, v3.x
 
-#define TOTAL_PIXELS 72
+#define TOTAL_PIXELS 99 // 大人用バスケ（緑・シルバー・黄）, 展示大人用テニス
+// #define TOTAL_PIXELS 94 // 大人用バスケ（無塗装）
+// #define TOTAL_PIXELS 72 // 子供用バスケ（黃）
+// #define TOTAL_PIXELS 85 // 子供用スポーツ（青）
 
 // common settings :::::::::
 
