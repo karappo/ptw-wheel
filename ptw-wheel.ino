@@ -32,15 +32,15 @@ int i_type = INSTRUMENT_TYPE_ONESHOT;
 int i_color_r = 255;
 int i_color_g = 0;
 int i_color_b = 0;
+float instrument_brightness_min = 0.5; // default brightness
+float instrument_brightness = 1;
 
 // effect color
 int e_color_r = 0;
 int e_color_g = 0;
 int e_color_b = 255;
-
-float instrument_brightness_min = 0.5; // default brightness
-float instrument_brightness = 1;
 float effect_brightness = 0;
+float effect_brightness_target = 0;
 
 int divide = 2; // LEDパターンの分割数
 float slit_position = 0.5; // 0~1 分割された区分の中のどこまでがinstrumentにするか。0だと全部effect color。1だと全部instrument color。
@@ -106,6 +106,16 @@ void loop() {
         Serial.println(argument);
       }
     }
+    // set effect_brightness_target value
+    // "b:[0.0-1.0];"
+    else if(command=="E") {
+      // TODO argument check
+      // argument is float
+      effect_brightness_target = argument.toFloat();
+      // Serial.print("set effect_brightness_target value: ");
+      // Serial.println(effect_brightness_target);
+      updateLED();
+    }
     // sound trigger
     // "s:;"
     else if(command=="s") {
@@ -119,8 +129,8 @@ void loop() {
       if(argument.length()==1) {
         // argument is int
         divide = argument.toInt();
-        Serial.print("set divide number: ");
-        Serial.println(divide);
+        // Serial.print("set divide number: ");
+        // Serial.println(divide);
         updateLED();
       }
       else {
@@ -134,18 +144,18 @@ void loop() {
       // TODO argument check
       // argument is float
       slit_position = argument.toFloat();
-      Serial.print("set position: ");
-      Serial.println(slit_position);
+      // Serial.print("set position: ");
+      // Serial.println(slit_position);
       updateLED();
     }
-    // set instrument_brightness min value
+    // set instrument_brightness_min value
     // "b:[0.0-1.0];"
     else if(command=="b") {
       // TODO argument check
       // argument is float
       instrument_brightness_min = argument.toFloat();
-      Serial.print("set instrument_brightness min value: ");
-      Serial.println(instrument_brightness_min);
+      // Serial.print("set instrument_brightness min value: ");
+      // Serial.println(instrument_brightness_min);
       updateLED();
     }
     else {
@@ -154,9 +164,27 @@ void loop() {
     }
   }
   else {
+
+    // instrument brightness
     if(instrument_brightness_min+0.01 <= instrument_brightness) {
       instrument_brightness -= 0.01;
       updateLED();
+    }
+
+    // effect brightness
+    // fade effect brightness to effect_brightness_target value
+    float diff = abs(effect_brightness_target-effect_brightness);
+    if(0.01<diff){
+      if(effect_brightness_target < effect_brightness) {
+        effect_brightness -= 0.01;
+      }
+      else {
+        effect_brightness += 0.01;
+      }
+      updateLED();
+    }
+    else if(diff != 0.0){
+      effect_brightness = effect_brightness_target;
     }
   }
 }
