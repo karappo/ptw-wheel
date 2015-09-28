@@ -44,6 +44,8 @@ float brightness = 1;
 int divide = 2; // LEDパターンの分割数
 float slit_position = 0.5; // 0~1 分割された区分の中のどこまでがinstrumentにするか。0だと全部effect color。1だと全部instrument color。
 
+bool instrument_flag = true; // switch by sound trigger
+
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
@@ -107,6 +109,7 @@ void loop() {
     // "s:;"
     else if(command=="s") {
       brightness = 1.0;
+      instrument_flag = !instrument_flag;
     }
     // set divide number
     // "d:[0-9];"
@@ -209,45 +212,35 @@ void updateLED() {
 
     case INSTRUMENT_TYPE_ONESHOT:
       {
-        float unit = (float) TOTAL_PIXELS/2.0;
+        float unit = (float) TOTAL_PIXELS / 2.0;
         int unit_number = 1;
         int unit_start = 0;
 
-        float innerunit = (float) unit*0.5; // inner unit in instrument unit
-        int innerunit_number = 1;
-        int innerunit_start = 0;
-
+        bool instrument_on = true;
         bool effect_on = true;
 
+        int inst_divide = 5;
+        float innerunit = unit / ((float) inst_divide * 2.0); // inner unit in instrument unit
+
         for(int i=0; i<TOTAL_PIXELS;) {
+
           if(i<unit*unit_number){
+
             if(i<unit_start+unit*0.5) {
 
               // instrument section
-              // for(int j=i; j<innerunit;) {
-              //   if(j<innerunit*innerunit_number){
-              //     if(j<innerunit_start+innerunit*0.5) {
-              //       // instrument section
-              //       strip.setPixelColor((uint16_t) j, instrument_color);
-              //     }
-              //     else {
-              //       // effect section
-              //       // 交互に色付く
-              //       uint32_t _color = effect_on ? effect_color : 0;
-              //       strip.setPixelColor((uint16_t) j, _color);
-              //       effect_on = !effect_on;
-              //     }
-              //     j++;
-              //   }
-              //   else {
-              //     innerunit_number++;
-              //     innerunit_start = j;
-              //   }
-              // }
-              strip.setPixelColor((uint16_t) i, instrument_color);
+
+              float index_in_innerunit = ((float) i) - ((float) unit_start);
+              int innerunit_index = (int)(index_in_innerunit / innerunit);
+
+              bool condition = (innerunit_index%2==0);
+              if(instrument_flag){ condition = !condition; } // instrument_flag の値に応じて条件を反転させる
+              uint32_t _color = condition ? instrument_color : 0;
+              strip.setPixelColor((uint16_t) i, _color);
             }
             else {
               // effect section
+
               // 交互に色付く
               uint32_t _color = effect_on ? effect_color : 0;
               strip.setPixelColor((uint16_t) i, _color);
