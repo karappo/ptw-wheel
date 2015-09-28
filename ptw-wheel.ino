@@ -23,14 +23,15 @@ String input_str;   // 文字列格納用
 int i = 0;  // 文字数のカウンタ
 
 // instrument types
-#define INSTRUMENT_TYPE_ONESHOT 0
-#define INSTRUMENT_TYPE_LONGSHOT 1
+#define INSTRUMENT_TYPE_DEFAULT 0
+#define INSTRUMENT_TYPE_ONESHOT 1
+#define INSTRUMENT_TYPE_LONGSHOT 2
 int i_type = INSTRUMENT_TYPE_ONESHOT;
 
 // instrument color
 int i_color_r = 255;
-int i_color_g = 255;
-int i_color_b = 255;
+int i_color_g = 0;
+int i_color_b = 0;
 
 // effect color
 int e_color_r = 0;
@@ -57,7 +58,7 @@ void loop() {
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
-    
+
     // set instrument type
     // "t:[0|1];"
     if(command=="t") {
@@ -76,7 +77,7 @@ void loop() {
     else if(command=="i") {
       Serial.println(command);
       if(argument.length()==11) {
-        
+
         i_color_r = argument.substring(0,3).toInt();
         i_color_g = argument.substring(4,7).toInt();
         i_color_b = argument.substring(8,11).toInt();
@@ -110,7 +111,7 @@ void loop() {
     // set divide number
     // "d:[0-9];"
     else if(command=="d") {
-      
+
       if(argument.length()==1) {
         // argument is int
         divide = argument.toInt();
@@ -181,23 +182,75 @@ void updateLED() {
   uint32_t effect_color = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b));
 
   switch (i_type) {
-    case INSTRUMENT_TYPE_ONESHOT:
+
+    case INSTRUMENT_TYPE_DEFAULT:
+      // control divide and slit_position from iOS
       {
         float unit = (float) TOTAL_PIXELS / (float) divide;
         int unit_number = 1;
         int unit_start = 0;
-        bool effect_on = true;
-        for(uint16_t i=0; i<TOTAL_PIXELS;) {
+        for(int i=0; i<TOTAL_PIXELS;) {
           if(i<unit*unit_number){
             if(i<unit_start+unit*slit_position) {
+              strip.setPixelColor((uint16_t) i, instrument_color);
+            }
+            else {
+              strip.setPixelColor((uint16_t) i, effect_color);
+            }
+            i++;
+          }
+          else {
+            unit_number++;
+            unit_start = i;
+          }
+        }
+      }
+      break;
+
+    case INSTRUMENT_TYPE_ONESHOT:
+      {
+        float unit = (float) TOTAL_PIXELS/2.0;
+        int unit_number = 1;
+        int unit_start = 0;
+
+        float innerunit = (float) unit*0.5; // inner unit in instrument unit
+        int innerunit_number = 1;
+        int innerunit_start = 0;
+
+        bool effect_on = true;
+
+        for(int i=0; i<TOTAL_PIXELS;) {
+          if(i<unit*unit_number){
+            if(i<unit_start+unit*0.5) {
+
               // instrument section
-              strip.setPixelColor(i, instrument_color);
+              // for(int j=i; j<innerunit;) {
+              //   if(j<innerunit*innerunit_number){
+              //     if(j<innerunit_start+innerunit*0.5) {
+              //       // instrument section
+              //       strip.setPixelColor((uint16_t) j, instrument_color);
+              //     }
+              //     else {
+              //       // effect section
+              //       // 交互に色付く
+              //       uint32_t _color = effect_on ? effect_color : 0;
+              //       strip.setPixelColor((uint16_t) j, _color);
+              //       effect_on = !effect_on;
+              //     }
+              //     j++;
+              //   }
+              //   else {
+              //     innerunit_number++;
+              //     innerunit_start = j;
+              //   }
+              // }
+              strip.setPixelColor((uint16_t) i, instrument_color);
             }
             else {
               // effect section
               // 交互に色付く
               uint32_t _color = effect_on ? effect_color : 0;
-              strip.setPixelColor(i, _color);
+              strip.setPixelColor((uint16_t) i, _color);
               effect_on = !effect_on;
             }
             i++;
@@ -209,6 +262,7 @@ void updateLED() {
         }
       }
       break;
+
     case INSTRUMENT_TYPE_LONGSHOT:
       {
         divide = 5;
@@ -217,17 +271,17 @@ void updateLED() {
         int unit_number = 1;
         int unit_start = 0;
         bool effect_on = true;
-        for(uint16_t i=0; i<TOTAL_PIXELS;) {
+        for(int i=0; i<TOTAL_PIXELS;) {
           if(i<unit*unit_number){
             if(i<unit_start+unit*slit_position) {
               // instrument section
-              strip.setPixelColor(i, instrument_color);
+              strip.setPixelColor((uint16_t) i, instrument_color);
             }
             else {
               // effect section
               // 交互に色付く
               uint32_t _color = effect_on ? effect_color : 0;
-              strip.setPixelColor(i, _color);
+              strip.setPixelColor((uint16_t) i, _color);
               effect_on = !effect_on;
             }
             i++;
@@ -239,6 +293,7 @@ void updateLED() {
         }
       }
       break;
+
     default:
       Serial.println("[error] i_type is invalid");
       break;
@@ -253,7 +308,6 @@ uint32_t multiplicateBrightness(int _r, int _g, int _b) {
   return strip.Color(r, g, b);
 }
 
-
 // from Adafruit example
 
 // Fill the dots one after the other with a color
@@ -264,10 +318,10 @@ void colorWipe(uint32_t c, uint8_t wait) {
       delay(wait);
   }
 }
- 
+
 void rainbow(uint8_t wait) {
   uint16_t i, j;
- 
+
   for(j=0; j<256; j++) {
     for(i=0; i<strip.numPixels(); i++) {
       strip.setPixelColor(i, Wheel((i+j) & 255));
@@ -276,7 +330,7 @@ void rainbow(uint8_t wait) {
     delay(wait);
   }
 }
- 
+
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
 uint32_t Wheel(byte WheelPos) {
