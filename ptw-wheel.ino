@@ -38,8 +38,9 @@ int e_color_r = 0;
 int e_color_g = 0;
 int e_color_b = 255;
 
-float brightness_min = 0.5; // 平常時のBrightness
-float brightness = 1;
+float instrument_brightness_min = 0.5; // default brightness
+float instrument_brightness = 1;
+float effect_brightness = 0;
 
 int divide = 2; // LEDパターンの分割数
 float slit_position = 0.5; // 0~1 分割された区分の中のどこまでがinstrumentにするか。0だと全部effect color。1だと全部instrument color。
@@ -108,7 +109,7 @@ void loop() {
     // sound trigger
     // "s:;"
     else if(command=="s") {
-      brightness = 1.0;
+      instrument_brightness = 1.0;
       instrument_flag = !instrument_flag;
     }
     // set divide number
@@ -137,14 +138,14 @@ void loop() {
       Serial.println(slit_position);
       updateLED();
     }
-    // set brightness min value
+    // set instrument_brightness min value
     // "b:[0.0-1.0];"
     else if(command=="b") {
       // TODO argument check
       // argument is float
-      brightness_min = argument.toFloat();
-      Serial.print("set brightness min value: ");
-      Serial.println(brightness_min);
+      instrument_brightness_min = argument.toFloat();
+      Serial.print("set instrument_brightness min value: ");
+      Serial.println(instrument_brightness_min);
       updateLED();
     }
     else {
@@ -153,8 +154,8 @@ void loop() {
     }
   }
   else {
-    if(brightness_min+0.01 <= brightness) {
-      brightness -= 0.01;
+    if(instrument_brightness_min+0.01 <= instrument_brightness) {
+      instrument_brightness -= 0.01;
       updateLED();
     }
   }
@@ -181,8 +182,8 @@ String getValue(String data, char separator, int index) {
 }
 
 void updateLED() {
-  uint32_t instrument_color = multiplicateBrightness(constrainValue(i_color_r), constrainValue(i_color_g), constrainValue(i_color_b));
-  uint32_t effect_color = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b));
+  uint32_t instrument_color = multiplicateBrightness(constrainValue(i_color_r), constrainValue(i_color_g), constrainValue(i_color_b), instrument_brightness);
+  uint32_t effect_color = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b), effect_brightness);
 
   switch (i_type) {
 
@@ -294,10 +295,10 @@ void updateLED() {
   strip.show();
 }
 
-uint32_t multiplicateBrightness(int _r, int _g, int _b) {
-  int r = (int) _r*brightness;
-  int g = (int) _g*brightness;
-  int b = (int) _b*brightness;
+uint32_t multiplicateBrightness(int _r, int _g, int _b, float _brightness) {
+  int r = (int) _r*_brightness;
+  int g = (int) _g*_brightness;
+  int b = (int) _b*_brightness;
   return strip.Color(r, g, b);
 }
 
