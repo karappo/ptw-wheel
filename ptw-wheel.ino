@@ -150,7 +150,7 @@ void loop() {
     }
   }
   else {
-    if(brightness_min < brightness) {
+    if(brightness_min+0.01 <= brightness) {
       brightness -= 0.01;
       updateLED();
     }
