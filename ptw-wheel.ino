@@ -136,19 +136,19 @@ void loop() {
     }
     // set effect color
     // "e:[000-255].[000-255].[000-255];"
-    // else if(command=="e") {
-    //   Serial.println(command);
-    //   if(argument.length()==11) {
-    //     e_color_r = argument.substring(0,3).toInt();
-    //     e_color_g = argument.substring(4,7).toInt();
-    //     e_color_b = argument.substring(8,11).toInt();
-    //     updateLED();
-    //   }
-    //   else {
-    //     Serial.print("Invalid argument: ");
-    //     Serial.println(argument);
-    //   }
-    // }
+    else if(command=="e") {
+      Serial.println(command);
+      if(argument.length()==11) {
+        e_color_r = argument.substring(0,3).toInt();
+        e_color_g = argument.substring(4,7).toInt();
+        e_color_b = argument.substring(8,11).toInt();
+        updateLED();
+      }
+      else {
+        Serial.print("Invalid argument: ");
+        Serial.println(argument);
+      }
+    }
     // set effect_brightness_target value
     // "E:[0.0-1.0];"
     else if(command=="E") {
