@@ -1,4 +1,5 @@
 #include <Adafruit_NeoPixel.h>
+#include <HSBColor.h>
 
 // Arduino Nano v2.x, v3.x
 
@@ -35,10 +36,10 @@ int i_type = INSTRUMENT_TYPE_ONESHOT;
 int i_color_r = 255;
 int i_color_g = 0;
 int i_color_b = 0;
-float instrument_brightness = 0.1;
+float instrument_brightness = 1.0;
 // use oneshot only
-float instrument_brightness_alt = 0.1;
-float instrument_brightness_min = 0.1;
+float instrument_brightness_alt = 1.0;
+float instrument_brightness_min = 1.0;
 
 // effect color
 int e_color_r = 0;
@@ -57,10 +58,44 @@ void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
   Serial.begin(9600);
+  randomSeed(analogRead(0));
 
   // startup animation
   rainbow(2);
   colorWipe(0, 2);
+
+  // random instrument color
+  int rand = random(6);
+  float h, s;
+  if(rand < 1) {
+    h = 0.412;
+    s = 1.0;
+  }
+  else if(rand < 2) {
+    h = 0.678;
+    s = 1.0;
+  }
+  else if(rand < 3) {
+    h = 0.893;
+    s = 1.0;
+  }
+  else if(rand < 4) {
+    h = 0.0;
+    s = 1.0;
+  }
+  else if(rand < 5) {
+    h = 0.412;
+    s = 1.0;
+  }
+  else {
+    h = 0.19;
+    s = 1.0;
+  }
+  int rgb[] = {255,255,255};
+  H2R_HSBtoRGB((int)(h*360.0), (int)(s*100.0), 100, rgb);
+  i_color_r = rgb[0];
+  i_color_g = rgb[1];
+  i_color_b = rgb[2];
 
   updateLED();
 }
@@ -258,8 +293,8 @@ void updateLED() {
   uint32_t _r = constrainValue(i_color_r);
   uint32_t _g = constrainValue(i_color_g);
   uint32_t _b = constrainValue(i_color_b);
-  uint32_t instrument_color = multiplicateBrightness(_r, _g, _b, instrument_brightness);
-  int32_t instrument_color_alt = multiplicateBrightness(_r, _g, _b, instrument_brightness_alt);
+  uint32_t instrument_color = multiplicateBrightness(_r, _g, _b, min(instrument_brightness,0.5));
+  int32_t instrument_color_alt = multiplicateBrightness(_r, _g, _b, min(instrument_brightness_alt, 0.5));
 
   _r = constrainValue(e_color_r);
   _g = constrainValue(e_color_g);
