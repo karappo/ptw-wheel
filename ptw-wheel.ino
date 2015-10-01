@@ -35,16 +35,18 @@ int i_type = INSTRUMENT_TYPE_ONESHOT;
 int i_color_r = 255;
 int i_color_g = 0;
 int i_color_b = 0;
-float instrument_brightness_min = 0.5; // use oneshot only
-float instrument_brightness_target = 1.0; // use longshot only
-float instrument_brightness = 1.0;
+float instrument_brightness = 0.1;
+// use oneshot only
+float instrument_brightness_alt = 0.1;
+float instrument_brightness_min = 0.1;
 
 // effect color
 int e_color_r = 0;
 int e_color_g = 0;
 int e_color_b = 255;
-float effect_brightness = 0;
-float effect_brightness_target = 0;
+#define EFFECT_BRIGHTNESS_MIN 0.02
+float effect_brightness = EFFECT_BRIGHTNESS_MIN;
+float effect_brightness_target = EFFECT_BRIGHTNESS_MIN;
 
 int divide = 2; // LEDパターンの分割数
 float slit_position = 0.5; // 0~1 分割された区分の中のどこまでがinstrumentにするか。0だと全部effect color。1だと全部instrument color。
@@ -59,6 +61,8 @@ void setup() {
   // startup animation
   rainbow(2);
   colorWipe(0, 2);
+
+  updateLED();
 }
 
 void loop() {
@@ -115,7 +119,7 @@ void loop() {
     else if(command=="E") {
       // TODO argument check
       // argument is float
-      effect_brightness_target = argument.toFloat();
+      effect_brightness_target = max(argument.toFloat(),EFFECT_BRIGHTNESS_MIN);
       // Serial.print("set effect_brightness_target value: ");
       // Serial.println(effect_brightness_target);
       updateLED();
@@ -123,7 +127,12 @@ void loop() {
     // sound trigger
     // "s:;"
     else if(command=="s") {
-      instrument_brightness = 1.0;
+      if(instrument_flag){
+        instrument_brightness = 1.0;
+      }
+      else {
+        instrument_brightness_alt = 1.0;
+      }
       instrument_flag = !instrument_flag;
     }
     // set divide number
@@ -162,16 +171,14 @@ void loop() {
       // Serial.println(instrument_brightness_min);
       updateLED();
     }
-    // set instrument_brightness_target value
+    // set instrument_brightness value
     // "b:[0.0-1.0];"
     else if(command=="B") {
       if(i_type==INSTRUMENT_TYPE_LONGSHOT){
         // TODO argument check
         // argument is float
         instrument_brightness = argument.toFloat();
-        // instrument_brightness_target = argument.toFloat();
         // Serial.print("set instrument_brightness min value: ");
-        // Serial.println(instrument_brightness_target);
         updateLED();
       }
     }
@@ -185,8 +192,16 @@ void loop() {
     // instrument brightness
 
     if(i_type==INSTRUMENT_TYPE_ONESHOT){
+      bool needs_update = false;
       if(instrument_brightness_min+0.01 <= instrument_brightness) {
-        instrument_brightness -= 0.01;
+        instrument_brightness -= 0.02;
+        needs_update = true;
+      }
+      if(instrument_brightness_min+0.01 <= instrument_brightness_alt) {
+        instrument_brightness_alt -= 0.02;
+        needs_update = true;
+      }
+      if(needs_update) {
         updateLED();
       }
     }
@@ -234,7 +249,10 @@ String getValue(String data, char separator, int index) {
 
 void updateLED() {
   uint32_t instrument_color = multiplicateBrightness(constrainValue(i_color_r), constrainValue(i_color_g), constrainValue(i_color_b), instrument_brightness);
+  int32_t instrument_color_alt = multiplicateBrightness(constrainValue(i_color_r), constrainValue(i_color_g), constrainValue(i_color_b), instrument_brightness_alt);
+
   uint32_t effect_color = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b), effect_brightness);
+  uint32_t effect_color_base = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b), EFFECT_BRIGHTNESS_MIN);
 
   switch (i_type) {
 
@@ -286,15 +304,15 @@ void updateLED() {
               int innerunit_index = (int)(index_in_innerunit / innerunit);
 
               bool condition = (innerunit_index%2==0);
-              if(instrument_flag){ condition = !condition; } // instrument_flag の値に応じて条件を反転させる
-              uint32_t _color = condition ? instrument_color : 0;
+              // if(instrument_flag){ condition = !condition; } // instrument_flag の値に応じて条件を反転させる
+              uint32_t _color = condition ? instrument_color : instrument_color_alt;
               strip.setPixelColor((uint16_t) i, _color);
             }
             else {
               // effect section
 
               // 交互に色付く
-              uint32_t _color = effect_on ? effect_color : 0;
+              uint32_t _color = effect_on ? effect_color : effect_color_base;
               strip.setPixelColor((uint16_t) i, _color);
               effect_on = !effect_on;
             }
@@ -325,7 +343,7 @@ void updateLED() {
             else {
               // effect section
               // 交互に色付く
-              uint32_t _color = effect_on ? effect_color : 0;
+              uint32_t _color = effect_on ? effect_color : effect_color_base;
               strip.setPixelColor((uint16_t) i, _color);
               effect_on = !effect_on;
             }
