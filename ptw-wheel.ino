@@ -248,11 +248,17 @@ String getValue(String data, char separator, int index) {
 }
 
 void updateLED() {
-  uint32_t instrument_color = multiplicateBrightness(constrainValue(i_color_r), constrainValue(i_color_g), constrainValue(i_color_b), instrument_brightness);
-  int32_t instrument_color_alt = multiplicateBrightness(constrainValue(i_color_r), constrainValue(i_color_g), constrainValue(i_color_b), instrument_brightness_alt);
+  uint32_t _r = constrainValue(i_color_r);
+  uint32_t _g = constrainValue(i_color_g);
+  uint32_t _b = constrainValue(i_color_b);
+  uint32_t instrument_color = multiplicateBrightness(_r, _g, _b, instrument_brightness);
+  int32_t instrument_color_alt = multiplicateBrightness(_r, _g, _b, instrument_brightness_alt);
 
-  uint32_t effect_color = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b), effect_brightness);
-  uint32_t effect_color_base = multiplicateBrightness(constrainValue(e_color_r), constrainValue(e_color_g), constrainValue(e_color_b), EFFECT_BRIGHTNESS_MIN);
+  _r = constrainValue(e_color_r);
+  _g = constrainValue(e_color_g);
+  _b = constrainValue(e_color_b);
+  uint32_t effect_color = multiplicateBrightness(_r, _g, _b, effect_brightness);
+  uint32_t effect_color_base = multiplicateBrightness(_r, _g, _b, EFFECT_BRIGHTNESS_MIN);
 
   switch (i_type) {
 
