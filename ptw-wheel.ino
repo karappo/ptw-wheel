@@ -115,7 +115,7 @@ void loop() {
     //   }
     // }
     // set effect_brightness_target value
-    // "b:[0.0-1.0];"
+    // "E:[0.0-1.0];"
     else if(command=="E") {
       // TODO argument check
       // argument is float
