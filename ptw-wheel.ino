@@ -230,7 +230,14 @@ void loop() {
 // limitation of brightness
 // 0-255の値を0-MAX_VALの範囲に
 uint32_t constrainValue(int input) {
-  return float(input) / 255.0 * float(MAX_VAL);
+  return map(input, 0, 255, 0, MAX_VAL);
+}
+
+// in_min～in_max内のxをout_min〜out_max内の値に変換して返す
+uint32_t map(int x, int in_min, int in_max, int out_min, int out_max) {
+  // restrict 'x' in 'in' range
+  int x_in_range = in_min < in_max ? max(min(x, in_max), in_min) : max(min(x, in_min), in_max);
+  return (x_in_range - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 String getValue(String data, char separator, int index) {
