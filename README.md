@@ -5,6 +5,7 @@ This project operate with iOS App [PlayTheWheels](https://github.com/karappo/Pla
 ## Requiements
 
 - [Adafruit_NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
+- [HSB_Color](https://github.com/julioterra/HSB_Color)
 
 ## License
 
