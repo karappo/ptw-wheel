@@ -3,6 +3,13 @@
 
 // Arduino Nano v2.x, v3.x
 
+// ----------------
+// LEDのテスト用に200個のLEDをレインボー表示させるモードにするフラグ
+// ここをtrueにするときは、その下のTOTAL_PIXELSも200にして、その後のTOTAL_PIXELSの定義をコメントアウトしておくこと
+bool debug = false;
+// #define TOTAL_PIXELS 200 // for debug mode
+// ----------------
+
 #define TOTAL_PIXELS 99 // 大人用バスケ（緑・シルバー・黄）, 展示大人用テニス
 // #define TOTAL_PIXELS 94 // 大人用バスケ（無塗装）
 // #define TOTAL_PIXELS 72 // 子供用バスケ（黃）
@@ -57,6 +64,11 @@ bool instrument_flag = true; // switch by sound trigger
 void setup() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
+
+  if(debug){
+    return;
+  }
+
   Serial.begin(9600);
   randomSeed(analogRead(0));
 
@@ -101,6 +113,11 @@ void setup() {
 }
 
 void loop() {
+  if(debug){
+    rainbow(2);
+    return;
+  }
+
   if (0<Serial.available()) {
     String command = Serial.readStringUntil(':');
     String argument = Serial.readStringUntil(';');
