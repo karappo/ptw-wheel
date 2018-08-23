@@ -3,17 +3,17 @@
 
 // Arduino Nano v2.x, v3.x
 
-// ----------------
+// debug mode and pixels settings :::::::::
 // LEDのテスト用に200個のLEDをレインボー表示させるモードにするフラグ
 // ここをtrueにするときは、その下のTOTAL_PIXELSも200にして、その後のTOTAL_PIXELSの定義をコメントアウトしておくこと
 bool debug = false;
-// #define TOTAL_PIXELS 200 // for debug mode
-// ----------------
 
-// #define TOTAL_PIXELS 72 // 子供用バスケ（黃）A
-// #define TOTAL_PIXELS 85 // 子供用スポーツ（青）B
+//#define TOTAL_PIXELS 200 // for debug mode
+
+//#define TOTAL_PIXELS 72 // 子供用バスケ（黃）A
+//#define TOTAL_PIXELS 85 // 子供用スポーツ（青）B
 #define TOTAL_PIXELS 99 // 大人用 C,D,E
-// #define TOTAL_PIXELS 94 // 大人用 F
+//#define TOTAL_PIXELS 94 // 大人用 F
 
 // common settings :::::::::
 
