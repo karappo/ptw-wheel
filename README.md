@@ -1,6 +1,11 @@
 # PlayTheWheels sketch for Arduino
 
-This project operate with iOS App [PlayTheWheels](https://github.com/karappo/PlayTheWheels).
+## Related Projects
+
+This project operate with these projects.
+
+- [PlayTheWheels](https://github.com/karappo/PlayTheWheels)
+- [ptw-wheel-eagle](https://github.com/karappo/ptw-wheel-eagle)
 
 ## Requiements
 
@@ -9,8 +14,6 @@ This project operate with iOS App [PlayTheWheels](https://github.com/karappo/Pla
 
 ## License
 
-Copyright (c) 2015 Karappo Inc.
-
-Released under the MIT license
+All source code by Karappo Inc. are released under the MIT license.
 
 https://raw.githubusercontent.com/karappo/ptw-wheel/master/LICENSE.txt
