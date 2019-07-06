@@ -12,8 +12,8 @@ bool debug = false;
 
 //#define TOTAL_PIXELS 72 // 子供用バスケ（黃）A
 //#define TOTAL_PIXELS 85 // 子供用スポーツ（青）B
-#define TOTAL_PIXELS 99 // 大人用 C,D,E
-//#define TOTAL_PIXELS 94 // 大人用 F
+#define TOTAL_PIXELS 99 // 大人用 C,D,F
+//#define TOTAL_PIXELS 94 // 大人用 E
 
 // common settings :::::::::
 
